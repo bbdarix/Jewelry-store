@@ -13,33 +13,77 @@ function saveCart(cart) {
     localStorage.setItem("kolCart", JSON.stringify(cart));
 }
 
+
 const addButton = document.getElementById("add-to-cart");
 
 if (addButton) {
     addButton.addEventListener("click", function() {
 
-        const size = document.getElementById("ring-size").value;
+        // Определяем товар по адресу страницы
+        const page = window.location.pathname.split("/").pop();
 
-        if (size === "") {
-            alert("Please select a size");
+        // Информация о товарах
+        const products = {
+            "ring.html": {
+                name: "FORM RING",
+                price: 8900,
+                image: "images/ring.jpg"
+            },
+
+            "earrings.html": {
+                name: "SILVER STUDS",
+                price: 6500,
+                image: "images/earrings.jpg"
+            },
+
+            "necklace.html": {
+                name: "NORTH PENDANT",
+                price: 12000,
+                image: "images/necklace.jpg"
+            }
+        };
+
+        // Находим товар для текущей страницы
+        const selectedProduct = products[page];
+
+        if (!selectedProduct) {
+            alert("Product not found");
             return;
         }
 
+        // Проверяем размер только для кольца
+        let size = "";
+
+        if (page === "ring.html") {
+            const sizeSelect = document.getElementById("ring-size");
+
+            size = sizeSelect ? sizeSelect.value : "";
+
+            if (size === "") {
+                alert("Please select a size");
+                return;
+            }
+        }
+
+        // Получаем текущую корзину
         const cart = getCart();
 
+        // Добавляем выбранный товар
         const product = {
-            name: "FORM RING",
+            name: selectedProduct.name,
             size: size,
-            price: 8900,
-            image: "images/ring.jpg"
+            price: selectedProduct.price,
+            image: selectedProduct.image
         };
 
         cart.push(product);
         saveCart(cart);
 
+        // Открываем корзину
         window.location.href = "cart.html";
     });
 }
+
 
 
 // ===== DISPLAY SHOPPING BAG =====
@@ -89,11 +133,20 @@ function renderCart() {
         const name = document.createElement("h2");
         name.textContent = product.name;
 
-        // Размер и цена
-        const details = document.createElement("p");
-        details.textContent =
-            "SIZE: " + product.size +
-            " | " + product.price + " RSD";
+        
+// Размер и цена
+const details = document.createElement("p");
+
+const priceText =
+    product.price.toLocaleString("en-US") + " RSD";
+
+if (product.size) {
+    details.textContent =
+        "SIZE: " + product.size + " | " + priceText;
+} else {
+    details.textContent = priceText;
+}
+
 
         // Кнопка удаления
         const removeButton = document.createElement("button");
